@@ -1,5 +1,6 @@
 import telebot
 from telebot import types
+from telebot import apihelper
 import sqlite3
 from sqlite3 import Error
 from tabulate import tabulate
@@ -25,7 +26,7 @@ def start(message):
 
     if result.fetchall().__len__() != 0 and text == '/start': # if user with this id already exists 
         bot.send_message(message.from_user.id, "Вы уже зарегестрированы!")
-        bot.register_next_step_handler(message, menu(message)) # redirect to (main) menu
+        menu(message) # redirect to (main) menu
     elif text == '/start':
         bot.send_message(message.from_user.id, "Введите свою фамилию")
         bot.register_next_step_handler(message, get_surname) #следующий шаг – функция get_surname
@@ -70,7 +71,7 @@ def menu(message):
 @bot.callback_query_handler(func=lambda call: True)
 def callback_worker(call):
     if call.data == "on_record":
-        bot.register_next_step_handler(call.message, register_to_queue(call))
+        register_to_queue(call)
 
     elif call.data == "on_delete":
         print('тут егор работает')
