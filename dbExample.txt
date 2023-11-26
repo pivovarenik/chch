@@ -3,24 +3,24 @@ create database Queue;
 use Queue;
 
 create table UserTable (
-	ID int not null,
+	ID		 int not null,
 	Surname nvarchar(50) not null,
 	PRIMARY KEY(ID)
 );
 
 create table Record (
-	ID bit not null, -- bit size is from 1 to 64, we have 31 people in the group
-	UserID int not null, -- so it will be ok to use 'short' type to take off some resources
-	LabID int not null,
-	LabsCount bit not null,
+	ID 			bit not null, -- bit size is from 1 to 64, we have 31 people in the group
+	UserID 		int not null, -- so it will be ok to use 'short' type to take off some resources
+	LabID 		int not null,
+	LabsCount 	bit not null,
 	PRIMARY KEY(ID)
 );
 
 create table LabTable (
-	ID int not null,
-	LabName nvarchar(50) not null,
+	ID 			int not null,
+	LabName 	nvarchar(50) not null,
 	GroupNumber bit not null,
-	LabDate date not null,
+	LabDate 	date not null,
 	PRIMARY KEY(ID)
 );
 
