@@ -1,8 +1,4 @@
-import telebot
-import sqlite3
-from sqlite3 import Error
-
-bot = telebot.TeleBot('6708440193:AAHwhUWSbhwvtKwnU6kHkM8cpNEGfjoyvSQ')
+from botInfo import *
 
 def register_to_queue(call):
     bot.send_message(call.message.chat.id, 'Выберите предмет:')
