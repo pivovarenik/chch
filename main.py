@@ -1,4 +1,4 @@
-from regToQueue import *
+from outputQueue import *
 
 surname = ' '
 
@@ -7,11 +7,10 @@ surname = ' '
 def callback_worker(call):
     if call.data == "on_record":
         register_to_queue(call)
-
     elif call.data == "on_delete":
-        print('тут егор работает')
+        delete_from_queue(call)
     else:
-        print('тут даша работает')
+        DisplayQueue(call.message)
 
 
 bot.polling(none_stop=True, interval=0)

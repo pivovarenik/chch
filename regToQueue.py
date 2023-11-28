@@ -1,4 +1,5 @@
 from botInfo import *
+from datetime import datetime
 
 
 lab_id = 0
@@ -78,6 +79,14 @@ def record_user(message):
         bot.send_message(message.from_user.id, 'Вы уже записаны в очередь!')
         help_func(message)
         return
+
+    send_time_res = connection.execute(f'select SendTime from LabTable where ID = {lab_id};')
+    send_time = send_time_res.fetchall()
+
+    if send_time == datetime.now().strftime("%H:%M"):
+        bot.send_message(message.from_user.id, 'Время записи окончено :(')
+        help_func(message)
+        return
     
     bot.send_message(message.from_user.id, "Сколько лаб хотите сдать?")
     bot.register_next_step_handler(message, check_labs_count)
@@ -88,6 +97,8 @@ def check_labs_count(message):
         labs_count = (int)(message.text)
         if labs_count < 1 or labs_count > 4:
             raise ValueError
+        if labs_count == 4:
+                bot.send_message(message.from_user.id, "Сомнительно, нооо ОКЭЙ")
         record_into_table(message)
         
 
