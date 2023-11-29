@@ -75,15 +75,27 @@ def record_user(message):
     result = connection.execute(f'select * from Record where UserID = {message.from_user.id} and LabID = {lab_id};')
     records_list = result.fetchall()
 
+
+
     if records_list.__len__() != 0:
         bot.send_message(message.from_user.id, 'Вы уже записаны в очередь!')
+        help_func(message)
+        return
+
+    labs_data = connection.execute(f'select * from LabTable;')
+    labs_list = labs_data.fetchall()
+
+    if labs_list.__len__() == 0:
+        bot.send_message(message.from_user.id, 'Нет лаб для записи!')
         help_func(message)
         return
 
     send_time_res = connection.execute(f'select SendTime from LabTable where ID = {lab_id};')
     send_time = send_time_res.fetchall()
 
-    if send_time == datetime.now().strftime("%H:%M"):
+    connection.close()
+
+    if (int)(send_time[0][0].replace(':', '')) <= (int)(datetime.now().strftime("%H%M")):
         bot.send_message(message.from_user.id, 'Время записи окончено :(')
         help_func(message)
         return
