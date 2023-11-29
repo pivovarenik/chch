@@ -1,4 +1,4 @@
-from outputQueue import *
+from outputMine import *
 
 surname = ' '
 
@@ -10,7 +10,7 @@ def callback_worker(call):
     elif call.data == "on_delete":
         delete_from_queue(call)
     else:
-        DisplayQueue(call.message)
+        display_queue(call)
 
 
 bot.polling(none_stop=True, interval=0)

@@ -6,6 +6,7 @@ import random
 import time
 
 bot = telebot.TeleBot('6708440193:AAHwhUWSbhwvtKwnU6kHkM8cpNEGfjoyvSQ')
+randomed_dict = dict()
 
 # здесь обрабатывается /start
 @bot.message_handler(commands=['start'])

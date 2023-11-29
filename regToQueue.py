@@ -56,7 +56,7 @@ def correct_id(message):
     connection.close()
 
     if labs_list.__len__() == 0:
-        bot.send_message(message.from_user.id, "Ты че-то попутал\nДавай еще раз")
+        bot.send_message(message.from_user.id, "Ты че-то попутал")
         help_func(message)
         return
 
