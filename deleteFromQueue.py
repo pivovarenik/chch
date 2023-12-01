@@ -1,27 +1,35 @@
 from regToQueue import *
 
 def delete_from_queue(call):
-    bot.send_message(call.message.chat.id, 'Откуда удаляться будем? :')
     try:
         connection = sqlite3.connect(r"QueueDatabase.db")
     except Error as e:
-        bot.send_message(call.message.chat.id, 'Невозможно подключиться к БД, пните разрабов')
+        bot.send_message(call.chat.id, 'Невозможно подключиться к БД, пните разрабов')
+        help_func(call)
         return
-    result = connection.execute('''SELECT LabTable.LabName, LabTable.LabDate
+    result = connection.execute('''SELECT LabTable.LabName, LabTable.LabDate, LabTable.GroupNumber
     FROM LabTable
     JOIN Record ON LabTable.ID = Record.LabID
-    WHERE Record.UserID = ?''', (call.message.chat.id,))
+    WHERE Record.UserID = ?''', (call.chat.id,))
     labs_list = result.fetchall()
+
+    if len(labs_list) == 0:
+        bot.send_message(call.chat.id, 'Ты шото попутал' ) # no records found
+        help_func(call)
+        return
+    bot.send_message(call.chat.id, 'Откуда удаляться будем?')
+    
     subject_info = """
-| № |  Название предмета  |  Дата лабы  |
-===================================
+| № | Название предмета | Дата лабы | Подгруппа |
+=================================================
 """
 
+    bot.send_message(call.chat.id, "Введите номер лабы с которой хотите удалиться")
+
     for i in range(len(labs_list)):
-        subject_info += f"| {i + 1: ^{3}}| {labs_list[i][0]: ^{36}}| {labs_list[i][1]: ^{10 * 2}}|\n"
-    subject_info += "Введите номер лабы с которой хотите удалиться\n"
-    bot.send_message(call.message.chat.id, subject_info)
-    bot.register_next_step_handler(call.message, process_user_input)
+        subject_info += f"|{i + 1: ^{3}}| {labs_list[i][0]: ^{18}}| {labs_list[i][1]: ^{10}}| {labs_list[i][2]: ^{10}}|\n"
+    bot.send_message(call.chat.id, '<pre>' + subject_info + '</pre>', parse_mode='html')
+    bot.register_next_step_handler(call, process_user_input)
 
 
 def process_user_input(message):
@@ -55,4 +63,5 @@ def process_user_input(message):
         bot.send_message(message.chat.id, "Введите целое число.")
     finally:
         connection.close()
-    menu(message)
+
+    help_func(message)

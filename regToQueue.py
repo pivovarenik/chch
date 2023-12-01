@@ -4,14 +4,15 @@ from datetime import datetime
 
 lab_id = 0
 
+
 def register_to_queue(call):
-    bot.send_message(call.message.chat.id, 'Выберите предмет:')
+    bot.send_message(call.chat.id, 'Выберите предмет:')
 
     try:
         connection = sqlite3.connect(r"QueueDatabase.db")
     except Error as e:
-        bot.send_message(call.message.chat.id, 'Невозможно подключиться к БД, пните разрабов')
-        help_func(call.message)
+        bot.send_message(call.chat.id, 'Невозможно подключиться к БД, пните разрабов')
+        help_func(call)
         return
 
     result = connection.execute(f'select * from LabTable;')
@@ -20,20 +21,21 @@ def register_to_queue(call):
 
 
     subject_info = """
-| ID  | Подгруппа | Название предмета 
-===================================
+| ID  | Название предмета | Подгруппа |
+=======================================
 """
 
     for i in range(len(labs_list)):
         subject_info += f"| {labs_list[i][0]: ^{4}}" # id
-        subject_info += f"| {labs_list[i][2]: ^{20}}" if (str)(labs_list[i][2]).__len__() == 1 else  f"| {labs_list[i][2]: ^{16}}" # подгруппа
-        subject_info += f"| {labs_list[i][1]: <{30}}\n" # subject
+        subject_info += f"| {labs_list[i][1]: ^{18}}" # subject
+        subject_info += f"| {labs_list[i][2]: ^{9}} |\n" # подгруппа
 
-    bot.send_message(call.message.chat.id, subject_info)
-    bot.register_next_step_handler(call.message, register_user)
+    bot.send_message(call.chat.id, '<pre>' + subject_info + '</pre>', parse_mode='html')
+    bot.register_next_step_handler(call, register_user)
 
 
 def register_user(message):
+
     try:
         global lab_id
         lab_id = (int)(message.text)
@@ -50,12 +52,12 @@ def correct_id(message):
         bot.send_message(message.from_user.id, 'Невозможно подключиться к БД, пните разрабов')
         help_func(message)
         return
-    
+
     result = connection.execute(f'select * from LabTable where ID = {lab_id};')
     labs_list = result.fetchall()
     connection.close()
 
-    if labs_list.__len__() == 0:
+    if len(labs_list) == 0:
         bot.send_message(message.from_user.id, "Ты че-то попутал")
         help_func(message)
         return
@@ -75,9 +77,7 @@ def record_user(message):
     result = connection.execute(f'select * from Record where UserID = {message.from_user.id} and LabID = {lab_id};')
     records_list = result.fetchall()
 
-
-
-    if records_list.__len__() != 0:
+    if len(records_list) != 0:
         bot.send_message(message.from_user.id, 'Вы уже записаны в очередь!')
         help_func(message)
         return
@@ -85,7 +85,7 @@ def record_user(message):
     labs_data = connection.execute(f'select * from LabTable;')
     labs_list = labs_data.fetchall()
 
-    if labs_list.__len__() == 0:
+    if len(labs_list) == 0:
         bot.send_message(message.from_user.id, 'Нет лаб для записи!')
         help_func(message)
         return
@@ -111,23 +111,20 @@ def check_labs_count(message):
             raise ValueError
         if labs_count == 4:
                 bot.send_message(message.from_user.id, "Сомнительно, нооо ОКЭЙ")
-        record_into_table(message)
-        
-
+        record_into_table(message, labs_count)
     except ValueError:
         bot.send_message(message.from_user.id, "Не переоценивайте себя!\nДавай еще раз")
         bot.register_next_step_handler(message, check_labs_count)
 
-def record_into_table(message):
-    
+def record_into_table(message, labs_count):
         try:
             connection = sqlite3.connect(r"QueueDatabase.db")
         except Error as e:
             bot.send_message(message.from_user.id, 'Невозможно подключиться к БД, пните разрабов')
             help_func(message)
             return
-        
-        connection.execute(f'insert into Record(userId, LabID, LabsCount) values({message.from_user.id},{lab_id},{message.text});')
+
+        connection.execute(f'insert into Record(userId, LabID, LabsCount) values({message.from_user.id},{lab_id},{labs_count});')
         connection.commit()
         connection.close()
         bot.send_message(message.from_user.id, "Вы успешно записаны в очередь!\n")
