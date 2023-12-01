@@ -2,9 +2,6 @@ from botInfo import *
 from datetime import datetime
 
 
-lab_id = 0
-
-
 def register_to_queue(call):
     bot.send_message(call.chat.id, 'Выберите предмет:')
 
@@ -37,15 +34,15 @@ def register_to_queue(call):
 def register_user(message):
 
     try:
-        global lab_id
         lab_id = (int)(message.text)
-        correct_id(message)
+        correct_id(message, lab_id)
     except ValueError:
         bot.send_message(message.from_user.id, "Я устал делать проверки...\nНу давай еще раз")
         bot.register_next_step_handler(message, register_user)
+        
 
 
-def correct_id(message):
+def correct_id(message, lab_id):
     try:
         connection = sqlite3.connect(r"QueueDatabase.db")
     except Error as e:
@@ -62,11 +59,11 @@ def correct_id(message):
         help_func(message)
         return
 
-    record_user(message)
+    record_user(message, lab_id)
 
 
 
-def record_user(message):
+def record_user(message, lab_id):
     try:
         connection = sqlite3.connect(r"QueueDatabase.db")
     except Error as e:
@@ -101,22 +98,22 @@ def record_user(message):
         return
     
     bot.send_message(message.from_user.id, "Сколько лаб хотите сдать?")
-    bot.register_next_step_handler(message, check_labs_count)
+    bot.register_next_step_handler(message, lambda message: check_labs_count(message, lab_id))
 
 
-def check_labs_count(message):
+def check_labs_count(message, lab_id):
     try:
         labs_count = (int)(message.text)
         if labs_count < 1 or labs_count > 4:
             raise ValueError
         if labs_count == 4:
-                bot.send_message(message.from_user.id, "Сомнительно, нооо ОКЭЙ")
-        record_into_table(message, labs_count)
+                bot.send_message(message.from_user.id, "Сомнительно, нооо ОКэЙ")
+        record_into_table(message, labs_count, lab_id)
     except ValueError:
         bot.send_message(message.from_user.id, "Не переоценивайте себя!\nДавай еще раз")
-        bot.register_next_step_handler(message, check_labs_count)
+        bot.register_next_step_handler(message, lambda message: check_labs_count(message, lab_id))
 
-def record_into_table(message, labs_count):
+def record_into_table(message, labs_count, lab_id):
         try:
             connection = sqlite3.connect(r"QueueDatabase.db")
         except Error as e:

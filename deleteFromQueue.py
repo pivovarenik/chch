@@ -20,14 +20,14 @@ def delete_from_queue(call):
     bot.send_message(call.chat.id, 'Откуда удаляться будем?')
     
     subject_info = """
-| № | Название предмета | Дата лабы | Подгруппа |
-=================================================
+| № |   Лаба   | Дата лабы | Подгруппа |
+========================================
 """
 
     bot.send_message(call.chat.id, "Введите номер лабы с которой хотите удалиться")
 
     for i in range(len(labs_list)):
-        subject_info += f"|{i + 1: ^{3}}| {labs_list[i][0]: ^{18}}| {labs_list[i][1]: ^{10}}| {labs_list[i][2]: ^{10}}|\n"
+        subject_info += f"|{i + 1: ^{3}}| {labs_list[i][0]: ^{9}}| {labs_list[i][1]: ^{10}}| {labs_list[i][2]: ^{10}}|\n"
     bot.send_message(call.chat.id, '<pre>' + subject_info + '</pre>', parse_mode='html')
     bot.register_next_step_handler(call, process_user_input)
 
